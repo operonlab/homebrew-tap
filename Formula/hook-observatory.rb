@@ -1,42 +1,67 @@
 class HookObservatory < Formula
-  desc "Safety rails for AI coding assistants — smart hooks that watch, guard, and audit"
+  desc "Go-native hook executor for Claude Code (formerly Python)"
   homepage "https://github.com/operonlab/hook-observatory"
-  url "https://github.com/operonlab/hook-observatory/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "aa1b2e6d6970c22defbc66ad3b9b7f718732d02eb7dadd7bfb260a14bee5c31b"
+  version "0.2.0"
   license "MIT"
 
-  depends_on "python@3.12"
+  depends_on "jq" # install.sh manipulates ~/.claude/settings.json with jq
 
-  def install
-    # Install all source files to libexec
-    libexec.install Dir["*"]
-
-    # Create a wrapper script
-    (bin/"hook-observatory").write <<~EOS
-      #!/bin/bash
-      exec "#{Formula["python@3.12"].opt_bin}/python3" "#{libexec}/install.py" "$@"
-    EOS
+  on_macos do
+    if Hardware::CPU.arm?
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.0/hook-dispatcher-darwin-arm64"
+      sha256 "0e7d2f20bba1e008f25242051a4b9683fbe1990482c0717fdec87166bdf16014"
+    else
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.0/hook-dispatcher-darwin-amd64"
+      sha256 "ca2c735c53c9465d43893ea987e9daa245809639ddef0032f41718be177484a2"
+    end
   end
 
-  def post_install
-    ohai "Run 'hook-observatory' to register hooks into Claude Code"
-    ohai "Run 'hook-observatory --uninstall' to remove them"
+  on_linux do
+    if Hardware::CPU.arm?
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.0/hook-dispatcher-linux-arm64"
+      sha256 "7d81fed93bb3501a9a08269c41120d6889ca013fa5ecc4a5195fa48635f0ba0a"
+    else
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.0/hook-dispatcher-linux-amd64"
+      sha256 "db83b9b42475a15555842dc4d7b5a86d94b4a7783ee6580cc1f59f5fc7ba2c75"
+    end
+  end
+
+  def install
+    # The release asset is a single binary file (no archive); rename and place.
+    bin.install Dir["*"].first => "hook-dispatcher"
   end
 
   def caveats
     <<~EOS
-      To install hooks into Claude Code:
-        hook-observatory
+      hook-observatory v0.2.0 is now a Go binary (replaces the Python dispatcher
+      shipped in v0.1.0).
 
-      To uninstall:
-        hook-observatory --uninstall
+      To register hooks into ~/.claude/settings.json, clone the source repo and
+      run the installer script:
 
-      To customize which handlers are enabled:
-        #{HOMEBREW_PREFIX}/opt/hook-observatory/libexec/config.yaml
+        git clone https://github.com/operonlab/hook-observatory.git
+        cd hook-observatory
+        ./install.sh --binary "#{bin}/hook-dispatcher"
+
+      Or fetch install.sh directly:
+
+        curl -fsSL https://raw.githubusercontent.com/operonlab/hook-observatory/main/install.sh -o /tmp/hook-install.sh
+        bash /tmp/hook-install.sh --binary "#{bin}/hook-dispatcher"
+
+      To remove:
+        ./install.sh --uninstall
+
+      If you previously had the Python version installed (v0.1.0),
+      settings.json entries calling python3 dispatcher.py should be removed
+      before installing this binary. The install.sh script handles this
+      automatically.
     EOS
   end
 
   test do
-    assert_match "hook-observatory installer", shell_output("#{bin}/hook-observatory --help 2>&1", 0)
+    # hook-dispatcher reads JSON event on stdin; --help isn't supported, so the
+    # binary's "no input" path is the test signal.
+    assert_predicate bin/"hook-dispatcher", :exist?
+    assert_predicate bin/"hook-dispatcher", :executable?
   end
 end
