@@ -8,46 +8,46 @@ class HookObservatory < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-dispatcher-darwin-arm64"
-      sha256 "b2d07164ae12c03b759624604b751ceb9f9f197a7f808591a6d497726a31a34c"
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-observatory-darwin-arm64"
+      sha256 "6f6ea66f0de7c17fd5d95210b38585ce67a63df8de9a8828e525ca78001ed19f"
     else
-      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-dispatcher-darwin-amd64"
-      sha256 "687b3f65e124a13d8876bc70dc694d530b5ab523f8a8f9c960386051b24f76e5"
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-observatory-darwin-amd64"
+      sha256 "a0514a12c96748fa53c46b037ebebe69a05288470f47822b177f527aa4d2f8c3"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-dispatcher-linux-arm64"
-      sha256 "1fdfe8875112530589feab65350986541073508c6c32b0e0fb973dbb4877cb45"
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-observatory-linux-arm64"
+      sha256 "adba25170dd8592df4f452369452f2bf07b11234658950196a236db1db37c165"
     else
-      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-dispatcher-linux-amd64"
-      sha256 "ee1157bed3982b7129835eafe42b012456355fff17529916a07e45a54f8f05ab"
+      url "https://github.com/operonlab/hook-observatory/releases/download/v0.2.1/hook-observatory-linux-amd64"
+      sha256 "b4a7e8cd80ecad7011ba71c88008f18d95f7551ce76f020b6859dcee96d246c5"
     end
   end
 
   def install
     # The release asset is a single binary file (no archive); rename and place.
-    bin.install Dir["*"].first => "hook-dispatcher"
+    bin.install Dir["*"].first => "hook-observatory"
   end
 
   def caveats
     <<~EOS
       hook-observatory v0.2.1 ships a Go binary (replaces the Python dispatcher
       shipped in v0.1.0). v0.2.1 restores the MCP server interface dropped
-      during the v0.2.0 rewrite — see `hook-dispatcher serve`.
+      during the v0.2.0 rewrite — see `hook-observatory serve`.
 
       To register hooks into ~/.claude/settings.json, clone the source repo and
       run the installer script:
 
         git clone https://github.com/operonlab/hook-observatory.git
         cd hook-observatory
-        ./install.sh --binary "#{bin}/hook-dispatcher"
+        ./install.sh --binary "#{bin}/hook-observatory"
 
       Or fetch install.sh directly:
 
         curl -fsSL https://raw.githubusercontent.com/operonlab/hook-observatory/main/install.sh -o /tmp/hook-install.sh
-        bash /tmp/hook-install.sh --binary "#{bin}/hook-dispatcher"
+        bash /tmp/hook-install.sh --binary "#{bin}/hook-observatory"
 
       To remove:
         ./install.sh --uninstall
@@ -60,17 +60,17 @@ class HookObservatory < Formula
   end
 
   test do
-    # hook-dispatcher reads JSON event on stdin; --help isn't supported, so the
+    # hook-observatory reads JSON event on stdin; --help isn't supported, so the
     # binary's "no input" path is the test signal.
-    assert_predicate bin/"hook-dispatcher", :exist?
-    assert_predicate bin/"hook-dispatcher", :executable?
+    assert_predicate bin/"hook-observatory", :exist?
+    assert_predicate bin/"hook-observatory", :executable?
 
     # MCP server smoke test: handshake should respond on stdout.
     require "open3"
     init = <<~JSON.strip
       {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"brew-test","version":"0"}}}
     JSON
-    out, _, _ = Open3.capture3(bin/"hook-dispatcher", "serve", stdin_data: init + "\n")
+    out, _, _ = Open3.capture3(bin/"hook-observatory", "serve", stdin_data: init + "\n")
     assert_match(/"serverInfo"/, out)
     assert_match(/"hook-observatory"/, out)
   end
