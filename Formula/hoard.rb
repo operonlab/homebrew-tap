@@ -1,8 +1,8 @@
 class Hoard < Formula
   desc "Disk-space map for macOS with a CLI and an MCP server for AI agents"
   homepage "https://github.com/operonlab/hoard"
-  url "https://github.com/operonlab/hoard/releases/download/v0.6.2/hoard-v0.6.2-aarch64-apple-darwin.tar.gz"
-  sha256 "7c688033f709c0ce26fde681a345f5e79735597f29a39a1046d610fc9b95cd71"
+  url "https://github.com/operonlab/hoard/releases/download/v0.6.3/hoard-v0.6.3-aarch64-apple-darwin.tar.gz"
+  sha256 "ec89231cc8a6eabe29301077b7c78d22894cdf85892eec41c105f5ea0beae716"
   license "MIT"
 
   depends_on arch: :arm64
