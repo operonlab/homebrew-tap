@@ -1,6 +1,6 @@
 cask "flowseam" do
-  version "0.1.1"
-  sha256 "a61cea13e14c852ad94a7c34a4e667cd2d4bdf0961bba86ba6f715f75fb7d2c4"
+  version "0.1.2"
+  sha256 "15a2170ae0e0fe24d5f8f3244bdf9974b8fb7237004468d3ed82d43fe3958979"
 
   url "https://github.com/operonlab/flowseam/releases/download/v#{version}/Flowseam-#{version}-macos.zip"
   name "Flowseam"
