@@ -1,6 +1,6 @@
 cask "flowseam" do
-  version "0.1.3"
-  sha256 "7f98108df316a6bede8ec36e2297ad9d25995d1df3fb9c2a83e57f15b53b995b"
+  version "0.1.4"
+  sha256 "4cb9f4bc256407ffd14fb05437b8bbbb0a64ebd5d42dc816c11366a5459ef960"
 
   url "https://github.com/operonlab/flowseam/releases/download/v#{version}/Flowseam-#{version}-macos.zip"
   name "Flowseam"
@@ -18,6 +18,15 @@ cask "flowseam" do
   end
 
   uninstall quit: "com.operonlab.flowseam"
+
+  # The settings, this machine's identity and its pairings: after a zap, every computer pairs again.
+  zap trash: [
+    "~/.config/flowseam",
+    "~/Library/Application Support/flowseam",
+    "~/Library/Caches/Flowseam",
+    "~/Library/Logs/Flowseam",
+    "~/Library/Preferences/com.operonlab.flowseam.plist",
+  ]
 
   caveats <<~EOS
     Open Flowseam once and grant Accessibility and Input Monitoring in
